@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Murphy Chaudhary — Electrical Engineer & Developer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="bg-dots"></div>
+
+  <!-- HEADER -->
+  <header class="statusbar">
+    <div class="status-left">
+      <span class="mini-scope">
+        <span class="scope-screen"><canvas id="mini-scope-canvas"></canvas></span>
+      </span>
+      <span class="status-text">STATUS: <span id="status-word" class="is-online">ONLINE</span></span>
+    </div>
+    <nav>
+      <a href="#projects">Projects</a>
+      <a href="#skills">Specs</a>
+      <a href="#about">About</a>
+    </nav>
+    <div class="readout">V<sub>OUT</sub> <span id="voltage-readout">230.00V</span></div>
+  </header>
+
+  <!-- CORNER HUD -->
+  <div class="corner-hud">
+    <div class="cap-unit mode-capacitor" id="cap-unit">
+      <svg class="cap-svg" viewBox="0 0 30 72" width="22" height="52" aria-hidden="true">
+        <line class="wire-line" x1="15" y1="0" x2="15" y2="22"/>
+        <line class="wire-line" x1="15" y1="50" x2="15" y2="72"/>
+        <circle class="flow-dot top" cx="15" cy="8" r="1.6"/>
+        <circle class="flow-dot bottom" cx="15" cy="64" r="1.6"/>
+        <g class="sym-cap" id="sym-cap">
+          <rect class="cap-plate-top" x="2" y="22" width="26" height="3" rx="1"/>
+          <rect class="cap-fill-rect" id="cap-fill-rect" x="8" y="47" width="14" height="0"/>
+          <rect class="cap-plate-bottom" x="2" y="47" width="26" height="3" rx="1"/>
+        </g>
+        <g class="sym-ind" id="sym-ind">
+          <path class="coil-path" id="coil-path" d="M15,22 a4.5,4.5 0 0 1 0,9 a4.5,4.5 0 0 1 0,9 a4.5,4.5 0 0 1 0,9"/>
+        </g>
+      </svg>
+      <canvas id="hud-graph" class="hud-graph" aria-hidden="true"></canvas>
+    </div>
+  </div>
+
+  <button class="totop-btn" id="totop-btn" type="button" aria-label="Back to top">
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+  </button>
+
+  <main>
+    <!-- ================= HERO ================= -->
+    <section class="hero">
+      
+      <div class="hero-inner">
+        <div class="eyebrow" id="hero-eyebrow">Steady State Reached</div>
+        <h1 id="hero-title">Murphy<br><span class="surname">Chaudhary</span></h1>
+        <p class="role" id="hero-role">
+          <strong>Electrical Engineering</strong> graduate with a strong technical foundation in power systems analysis, control engineering, and advanced simulation tools. Proven capability in integrating machine learning and software development with traditional electrical engineering concepts.
+        </p>
+        <div class="cta-row" id="hero-cta">
+          <a href="#projects" class="btn primary">
+            <span class="charge-fill"></span><span class="btn-label">View projects →</span>
+          </a>
+          <a href="mailto:murphychaudhary2018@gmail.com" class="btn">
+            <span class="charge-fill"></span><span class="btn-label">Get in touch</span>
+          </a>
+          <a href="/resume.pdf" class="btn">
+            <span class="charge-fill"></span><span class="btn-label">Resume.pdf</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="chua-wrapper" id="chua-wrapper">
+        
+        <!-- Interactive Easter Egg: Accurate Chua Schematic SVG -->
+        <div class="schematic-trigger" id="schematic-trigger" title="Click to energize circuit">
+          <svg class="blueprint-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 20 100 L 40 100 M 160 100 L 180 100" class="schem-line"/>
+            <!-- Resistor R -->
+            <path d="M 40 100 Q 45 80 52 100 T 64 100 T 76 100 T 88 100 L 95 100" class="schem-line" fill="none"/>
+            <!-- Inductor L -->
+            <path d="M 95 100 L 100 90 L 108 110 L 116 90 L 124 110 L 132 90 L 140 110 L 145 100 L 160 100" class="schem-line" fill="none"/>
+            <!-- Capacitor C1 -->
+            <g id="cap-c1" class="cap-group">
+              <path d="M 95 100 L 95 130 M 85 130 L 105 130 M 85 136 L 105 136 M 95 136 L 95 165" class="schem-line"/>
+            </g>
+            <!-- Capacitor C2 -->
+            <g id="cap-c2" class="cap-group">
+              <path d="M 160 100 L 160 130 M 150 130 L 170 130 M 150 136 L 170 136 M 160 136 L 160 165" class="schem-line"/>
+            </g>
+            <!-- Non-linear Resistor / Diode element -->
+            <path d="M 160 100 L 185 100 L 185 130 M 175 130 L 195 130 M 175 145 L 195 145 M 185 145 L 185 165" class="schem-line"/>
+            <polygon points="185,130 178,140 192,140" fill="none" class="schem-line"/>
+            <!-- Ground Bus & Ground Symbol -->
+            <path d="M 20 165 L 185 165" class="schem-line"/>
+            <path d="M 100 165 L 100 173 M 92 173 L 108 173 M 95 177 L 105 177" class="schem-line"/>
+            
+            <!-- Junction Nodes -->
+            <circle cx="95" cy="100" r="1.8" class="schem-node"/>
+            <circle cx="160" cy="100" r="1.8" class="schem-node"/>
+            <circle cx="95" cy="165" r="1.8" class="schem-node"/>
+            <circle cx="160" cy="165" r="1.8" class="schem-node"/>
+
+            <!-- Split / merge pulse rings -->
+            <circle id="ping-a" class="node-ping" cx="95" cy="100" r="2"/>
+            <circle id="ping-merge" class="node-ping" cx="100" cy="165" r="2"/>
+
+            <!-- ================= CURRENT ANIMATION (JS-driven geometry trace) ================= -->
+            <defs>
+              <path id="p-in" d="M 20 100 L 40 100 Q 45 80 52 100 T 64 100 T 76 100 T 88 100 L 95 100" fill="none"/>
+              <path id="p-c1" d="M 95 100 L 95 165 L 100 165" fill="none"/>
+              <path id="p-c2" d="M 95 100 L 100 90 L 108 110 L 116 90 L 124 110 L 132 90 L 140 110 L 145 100 L 160 100 L 160 165 L 100 165" fill="none"/>
+              <path id="p-out" d="M 100 165 L 20 165 L 20 100" fill="none"/>
+            </defs>
+
+            <circle id="dot-main"     class="current-dot" r="2.2" cx="20"  cy="100" opacity="0"/>
+            <circle id="dot-branch-1" class="current-dot" r="1.8" cx="95"  cy="100" opacity="0"/>
+            <circle id="dot-branch-2" class="current-dot" r="1.8" cx="95"  cy="100" opacity="0"/>
+            <circle id="dot-return"   class="current-dot" r="2.2" cx="100" cy="165" opacity="0"/>
+          </svg>
+          <div class="schem-hint">Chua's Circuit Schematic · Click to energize</div>
+        </div>
+
+        <!-- Live 3D Chua Canvas -->
+        <canvas id="chua-canvas" class="chua-canvas"></canvas>
+
+        <!-- Hidden Info Button (Appears on Hover) -->
+        <button class="chua-info-icon" id="chua-info-btn" aria-label="Attractor Info">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+        </button>
+
+        <!-- Information Panel -->
+        <div class="chua-panel" id="chua-panel">
+          <h4>Chua's Circuit Attractor</h4>
+          <p>Chua's circuit is an electronic circuit exhibiting chaotic behavior. Click the schematic to toggle the live differential equation visualizer.</p>
+          <label for="chua-alpha">
+            <span>&alpha; (Var. Resistor):</span>
+            <span id="alpha-val">15.3</span>
+          </label>
+          <input type="range" id="chua-alpha" min="8" max="18" step="0.1" value="15.3">
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ================= PROJECTS ================= -->
+    <section id="projects">
+      <div class="section-head">
+        <h2>Academic Projects</h2>
+      </div>
+      <div class="trace-divider" data-trace><div class="pulse"></div></div>
+
+      <div class="trace-timeline">
+        <article class="node">
+          <div class="node-index">01</div>
+          <div class="node-content">
+            <div class="tag">Power Quality / AI</div>
+            <h3>Spiking Neural Network (SNN) Controlled SAPF</h3>
+            <p>Designed and simulated a Shunt Active Power Filter (SAPF) in MATLAB/Simulink to dynamically mitigate grid harmonics. Developed an event-driven Spiking Neural Network (SNN) controller in Python to replace numerical solvers and achieve low latency calculation of compensating currents.</p>
+            <div class="gauge-row">
+              <div class="gauge">
+                <div class="gauge-label"><span>THD Reduction</span><b>High</b></div>
+                <div class="gauge-track"><div class="gauge-fill" data-fill="95%"></div></div>
+              </div>
+              <div class="gauge">
+                <div class="gauge-label"><span>Solver Latency</span><b>Real-time</b></div>
+                <div class="gauge-track"><div class="gauge-fill" data-fill="90%"></div></div>
+              </div>
+            </div>
+            <div class="node-footer">
+              <span class="status-chip">Dec 2025 – May 2026</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="node">
+          <div class="node-index">02</div>
+          <div class="node-content">
+            <div class="tag">Electrical Design / LV</div>
+            <h3>Illumination & Low Voltage Distribution System Design</h3>
+            <p>Designed a comprehensive interior/exterior lighting layout and low-voltage electrical distribution system matching NEC/IEC standards. Performed lux calculations to optimize fixture placement and produced detailed load schedules and single-line diagrams (SLD).</p>
+            <div class="gauge-row">
+              <div class="gauge">
+                <div class="gauge-label"><span>Compliance</span><b>NEC / IEC</b></div>
+                <div class="gauge-track"><div class="gauge-fill" data-fill="100%"></div></div>
+              </div>
+              <div class="gauge">
+                <div class="gauge-label"><span>Energy Efficiency</span><b>Optimized</b></div>
+                <div class="gauge-track"><div class="gauge-fill" data-fill="88%"></div></div>
+              </div>
+            </div>
+            <div class="node-footer">
+              <span class="status-chip">Aug 2025 – Nov 2025</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="node">
+          <div class="node-index">03</div>
+          <div class="node-content">
+            <div class="tag">Python / Power Systems</div>
+            <h3>Transmission Line Design App</h3>
+            <p>Modeled electrical line parameters (R, L, C), transient phenomena (Ferranti Effect), and voltage regulation under heavy inductive grid loads. Developed and deployed a public web application using Python and Streamlit for instant visualization of transmission efficiency.</p>
+            <div class="gauge-row">
+              <div class="gauge">
+                <div class="gauge-label"><span>Parameter Modeling</span><b>R, L, C</b></div>
+                <div class="gauge-track"><div class="gauge-fill" data-fill="92%"></div></div>
+              </div>
+              <div class="gauge">
+                <div class="gauge-label"><span>UI Responsiveness</span><b>Instant</b></div>
+                <div class="gauge-track"><div class="gauge-fill" data-fill="96%"></div></div>
+              </div>
+            </div>
+            <div class="node-footer">
+              <span class="status-chip">Aug 2025 – Nov 2025</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ================= SKILLS ================= -->
+    <section id="skills">
+      <div class="section-head">
+        <h2>Specs &amp; Skills</h2>
+      </div>
+      <div class="trace-divider" data-trace><div class="pulse"></div></div>
+
+      <div class="skills-intro">
+        <div class="readout-label">CORE COMPETENCIES</div>
+        <p>Technical abilities grounded in power systems analysis, electrical installation design, control engineering, and advanced computational modeling.</p>
+      </div>
+
+      <div class="skill-groups">
+        <div class="skill-group">
+          <div class="skill-group-head"><span class="group-dot"></span><h3>Core Engineering</h3></div>
+          <div class="skill-bar">
+            <div class="skill-bar-label"><span>Power System Analysis</span><span>Advanced</span></div>
+            <div class="skill-bar-track"><div class="skill-bar-fill" data-fill="92%"></div></div>
+          </div>
+          <div class="skill-bar">
+            <div class="skill-bar-label"><span>Electrical Installation Design</span><span>Advanced</span></div>
+            <div class="skill-bar-track"><div class="skill-bar-fill" data-fill="88%"></div></div>
+          </div>
+          <div class="skill-bar">
+            <div class="skill-bar-label"><span>Control & High Voltage Eng.</span><span>Proficient</span></div>
+            <div class="skill-bar-track"><div class="skill-bar-fill" data-fill="84%"></div></div>
+          </div>
+        </div>
+
+        <div class="skill-group">
+          <div class="skill-group-head"><span class="group-dot"></span><h3>Software & Tools</h3></div>
+          <div class="skill-bar">
+            <div class="skill-bar-label"><span>MATLAB & Simulink</span><span>Advanced</span></div>
+            <div class="skill-bar-track"><div class="skill-bar-fill" data-fill="95%"></div></div>
+          </div>
+          <div class="skill-bar">
+            <div class="skill-bar-label"><span>Python (Data Science & ML)</span><span>Fluent</span></div>
+            <div class="skill-bar-track"><div class="skill-bar-fill" data-fill="88%"></div></div>
+          </div>
+          <div class="skill-bar">
+            <div class="skill-bar-label"><span>C / C++</span><span>Proficient</span></div>
+            <div class="skill-bar-track"><div class="skill-bar-fill" data-fill="78%"></div></div>
+          </div>
+        </div>
+
+        <div class="skill-group">
+          <div class="skill-group-head"><span class="group-dot"></span><h3>Standards & Tools</h3></div>
+          <div class="skill-bar">
+            <div class="skill-bar-label"><span>NEC / IEC Standards</span><span>Fluent</span></div>
+            <div class="skill-bar-track"><div class="skill-bar-fill" data-fill="90%"></div></div>
+          </div>
+          <div class="skill-bar">
+            <div class="skill-bar-label"><span>Load Schedules & SLD</span><span>Fluent</span></div>
+            <div class="skill-bar-track"><div class="skill-bar-fill" data-fill="88%"></div></div>
+          </div>
+          <div class="skill-bar">
+            <div class="skill-bar-label"><span>Streamlit & Web Tools</span><span>Proficient</span></div>
+            <div class="skill-bar-track"><div class="skill-bar-fill" data-fill="82%"></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ABOUT ================= -->
+    <section id="about">
+      <div class="section-head">
+        <h2>About</h2>
+      </div>
+      <div class="trace-divider" data-trace><div class="pulse"></div></div>
+
+      <div class="about-grid" style="margin-top:48px;">
+        <div>
+          <p>
+            Electrical Engineering graduate with a strong technical foundation in power systems analysis, control engineering, and advanced simulation tools.
+          </p>
+          <p>
+            Adept at integrating machine learning and software development with traditional electrical engineering concepts to design, model, and optimize complex systems.
+          </p>
+        </div>
+        <div class="about-timeline">
+          <div><span>LOCATION</span><span>Kathmandu, Nepal</span></div>
+          <div><span>PHONE</span><span>+977-9803294929</span></div>
+          <div><span>EDUCATION</span><span>B.E. Electrical Engineering, Pulchowk Campus, IOE (2022–2026)</span></div>
+          <div><span>AVAILABILITY</span><span>Open to work</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="discharge">
+      Currently accepting new work.
+      <a href="mailto:murphychaudhary2018@gmail.com">Start a conversation →</a>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="year"></span> Murphy Chaudhary. Built with precision.</span>
+      <div class="socials">
+        <a href="https://www.linkedin.com/in/murphychaudhary" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="mailto:murphychaudhary2018@gmail.com">Email</a>
+        <a href="/resume.pdf">Resume</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
