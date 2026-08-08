@@ -81,48 +81,82 @@
         <!-- Interactive Easter Egg: Accurate Chua Schematic SVG -->
         <div class="schematic-trigger" id="schematic-trigger" title="Click to energize circuit">
           <svg class="blueprint-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-            <path d="M 20 100 L 40 100 M 160 100 L 180 100" class="schem-line"/>
+            <!-- Inductor L (vertical branch, parallel with C2) with current arrow I -->
+            <path d="M 28 40 L 28 48 Q 39 61 28 74 Q 39 87 28 100 Q 39 113 28 126 Q 39 139 28 152 L 28 160" class="schem-line" fill="none"/>
+            <path d="M 50 118 L 50 82 M 44 90 L 50 82 L 56 90" class="schem-line" fill="none"/>
+            <text x="50" y="132" text-anchor="middle" class="schem-label">I</text>
+
+            <!-- Top wire: L's node -> node A -->
+            <path d="M 28 40 L 72 40" class="schem-line"/>
+
             <!-- Resistor R -->
-            <path d="M 40 100 Q 45 80 52 100 T 64 100 T 76 100 T 88 100 L 95 100" class="schem-line" fill="none"/>
-            <!-- Inductor L -->
-            <path d="M 95 100 L 100 90 L 108 110 L 116 90 L 124 110 L 132 90 L 140 110 L 145 100 L 160 100" class="schem-line" fill="none"/>
-            <!-- Capacitor C1 -->
-            <g id="cap-c1" class="cap-group">
-              <path d="M 95 100 L 95 130 M 85 130 L 105 130 M 85 136 L 105 136 M 95 136 L 95 165" class="schem-line"/>
-            </g>
-            <!-- Capacitor C2 -->
+            <path d="M 72 40 L 84 40 L 92 32 L 100 48 L 108 32 L 116 40 L 124 40" class="schem-line" fill="none"/>
+            <text x="100" y="58" text-anchor="middle" class="schem-label">R</text>
+
+            <!-- Top wire: node B -> Chua's Diode branch -->
+            <path d="M 124 40 L 170 40" class="schem-line"/>
+
+            <!-- Capacitor C2 (parallel with L, node A) -->
             <g id="cap-c2" class="cap-group">
-              <path d="M 160 100 L 160 130 M 150 130 L 170 130 M 150 136 L 170 136 M 160 136 L 160 165" class="schem-line"/>
+              <path d="M 72 40 L 72 94 M 62 94 L 82 94 M 62 100 L 82 100 M 72 100 L 72 160" class="schem-line"/>
             </g>
-            <!-- Non-linear Resistor / Diode element -->
-            <path d="M 160 100 L 185 100 L 185 130 M 175 130 L 195 130 M 175 145 L 195 145 M 185 145 L 185 165" class="schem-line"/>
-            <polygon points="185,130 178,140 192,140" fill="none" class="schem-line"/>
+            <text x="88" y="98" class="schem-label">C2</text>
+
+            <!-- Capacitor C1 (parallel with Chua's Diode, node B) -->
+            <g id="cap-c1" class="cap-group">
+              <path d="M 124 40 L 124 94 M 114 94 L 134 94 M 114 100 L 134 100 M 124 100 L 124 160" class="schem-line"/>
+            </g>
+            <text x="140" y="98" class="schem-label">C1</text>
+
+            <!-- Chua's Diode (nonlinear resistor, parallel with C1): one bordered box,
+                 zigzag in the upper ~70%, solid fill in the lower ~27% -->
+            <g id="cap-nr" class="cap-group">
+              <path d="M 170 40 L 170 74" class="schem-line"/>
+              <rect x="160" y="74" width="20" height="51" class="schem-line" fill="none"/>
+              <path d="M 170 74 L 174 81 L 166 88 L 174 96 L 166 103 L 170 110" class="schem-line" fill="none"/>
+              <rect x="160.6" y="110.6" width="18.8" height="13.8" class="cap-nr-fill" stroke="none"/>
+              <path d="M 170 125 L 170 160" class="schem-line"/>
+            </g>
+
             <!-- Ground Bus & Ground Symbol -->
-            <path d="M 20 165 L 185 165" class="schem-line"/>
-            <path d="M 100 165 L 100 173 M 92 173 L 108 173 M 95 177 L 105 177" class="schem-line"/>
-            
-            <!-- Junction Nodes -->
-            <circle cx="95" cy="100" r="1.8" class="schem-node"/>
-            <circle cx="160" cy="100" r="1.8" class="schem-node"/>
-            <circle cx="95" cy="165" r="1.8" class="schem-node"/>
-            <circle cx="160" cy="165" r="1.8" class="schem-node"/>
+            <path d="M 28 160 L 170 160" class="schem-line"/>
+            <path d="M 100 160 L 100 168 M 92 168 L 108 168 M 95 172 L 105 172" class="schem-line"/>
+
+            <!-- Junction Nodes: node A, node B, merge 2 (= C2's own junction), merge 1 (= C1's own junction) -->
+            <circle cx="72" cy="40" r="1.8" class="schem-node"/>
+            <circle cx="124" cy="40" r="1.8" class="schem-node"/>
+            <circle cx="72" cy="160" r="1.8" class="schem-node"/>
+            <circle cx="124" cy="160" r="1.8" class="schem-node"/>
 
             <!-- Split / merge pulse rings -->
-            <circle id="ping-a" class="node-ping" cx="95" cy="100" r="2"/>
-            <circle id="ping-merge" class="node-ping" cx="100" cy="165" r="2"/>
+            <circle id="ping-node-a" class="node-ping" cx="72"  cy="40"  r="2.5"/>
+            <circle id="ping-node-b" class="node-ping" cx="124" cy="40"  r="2.5"/>
+            <circle id="ping-merge1" class="node-ping" cx="124" cy="160" r="2.5"/>
+            <circle id="ping-merge2" class="node-ping" cx="72"  cy="160" r="2.5"/>
 
-            <!-- ================= CURRENT ANIMATION (JS-driven geometry trace) ================= -->
+            <!-- ================= CURRENT ANIMATION (JS-driven geometry trace) =================
+                 Flow: L -> node A -> splits into C2 (down) and "through" (via R to node B)
+                 -> node B splits into C1 (down) and Chua's Diode (down), synced arrival at merge 1 (C1's junction)
+                 -> combined dot travels to merge 2 (C2's junction), where it combines with the C2 current
+                 -> combined dot returns to L, cycle repeats.
+                 Every path below is an exact trace of the visible wire it belongs to — no artificial offset. -->
             <defs>
-              <path id="p-in" d="M 20 100 L 40 100 Q 45 80 52 100 T 64 100 T 76 100 T 88 100 L 95 100" fill="none"/>
-              <path id="p-c1" d="M 95 100 L 95 165 L 100 165" fill="none"/>
-              <path id="p-c2" d="M 95 100 L 100 90 L 108 110 L 116 90 L 124 110 L 132 90 L 140 110 L 145 100 L 160 100 L 160 165 L 100 165" fill="none"/>
-              <path id="p-out" d="M 100 165 L 20 165 L 20 100" fill="none"/>
+              <path id="p-a-in"    d="M 28 160 L 28 152 Q 39 139 28 126 Q 39 113 28 100 Q 39 87 28 74 Q 39 61 28 48 L 28 40" fill="none"/>
+              <path id="p-c2"      d="M 72 40 L 72 160" fill="none"/>
+              <path id="p-through" d="M 72 40 L 84 40 L 92 32 L 100 48 L 108 32 L 116 40 L 124 40" fill="none"/>
+              <path id="p-c1"      d="M 124 40 L 124 160" fill="none"/>
+              <path id="p-nr"      d="M 124 40 L 170 40 L 170 74 L 174 81 L 166 88 L 174 96 L 166 103 L 170 110 L 170 125 L 170 160 L 124 160" fill="none"/>
+              <path id="p-m1-m2"   d="M 124 160 L 72 160" fill="none"/>
+              <path id="p-final"   d="M 72 160 L 28 160" fill="none"/>
             </defs>
 
-            <circle id="dot-main"     class="current-dot" r="2.2" cx="20"  cy="100" opacity="0"/>
-            <circle id="dot-branch-1" class="current-dot" r="1.8" cx="95"  cy="100" opacity="0"/>
-            <circle id="dot-branch-2" class="current-dot" r="1.8" cx="95"  cy="100" opacity="0"/>
-            <circle id="dot-return"   class="current-dot" r="2.2" cx="100" cy="165" opacity="0"/>
+            <circle id="dot-a-in"    class="current-dot" r="2.2" cx="28"  cy="160" opacity="0"/>
+            <circle id="dot-c2"      class="current-dot" r="2"   cx="72"  cy="40"  opacity="0"/>
+            <circle id="dot-through" class="current-dot" r="2"   cx="72"  cy="40"  opacity="0"/>
+            <circle id="dot-c1"      class="current-dot" r="2"   cx="124" cy="40"  opacity="0"/>
+            <circle id="dot-nr"      class="current-dot" r="2"   cx="124" cy="40"  opacity="0"/>
+            <circle id="dot-m1-m2"   class="current-dot" r="2.2" cx="124" cy="160" opacity="0"/>
+            <circle id="dot-final"   class="current-dot" r="2.2" cx="72"  cy="160" opacity="0"/>
           </svg>
           <div class="schem-hint">Chua's Circuit Schematic · Click to energize</div>
         </div>
