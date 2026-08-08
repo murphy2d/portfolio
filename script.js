@@ -1,32 +1,43 @@
 document.getElementById('year').textContent = new Date().getFullYear();
 
-/* ---------------- Schematic current-flow: single dot, splits, recombines ---------------- */
+/* ---------------- Schematic current-flow: splits at C2, then at C1/diode, merges in two stages ---------------- */
 (function schematicCurrentFlow(){
-  const pIn  = document.getElementById('p-in');
-  const pC1  = document.getElementById('p-c1');
-  const pC2  = document.getElementById('p-c2');
-  const pOut = document.getElementById('p-out');
-  const dotMain   = document.getElementById('dot-main');
-  const dotB1     = document.getElementById('dot-branch-1');
-  const dotB2     = document.getElementById('dot-branch-2');
-  const dotReturn = document.getElementById('dot-return');
-  const pingA     = document.getElementById('ping-a');
-  const pingMerge = document.getElementById('ping-merge');
+  const pAIn     = document.getElementById('p-a-in');
+  const pC2      = document.getElementById('p-c2');
+  const pThrough = document.getElementById('p-through');
+  const pC1      = document.getElementById('p-c1');
+  const pNr      = document.getElementById('p-nr');
+  const pM1M2    = document.getElementById('p-m1-m2');
+  const pFinal   = document.getElementById('p-final');
+
+  const dotAIn     = document.getElementById('dot-a-in');
+  const dotC2      = document.getElementById('dot-c2');
+  const dotThrough = document.getElementById('dot-through');
+  const dotC1      = document.getElementById('dot-c1');
+  const dotNr      = document.getElementById('dot-nr');
+  const dotM1M2    = document.getElementById('dot-m1-m2');
+  const dotFinal   = document.getElementById('dot-final');
+
+  const pingNodeA  = document.getElementById('ping-node-a');
+  const pingNodeB  = document.getElementById('ping-node-b');
+  const pingMerge1 = document.getElementById('ping-merge1');
+  const pingMerge2 = document.getElementById('ping-merge2');
+
   const capC1 = document.getElementById('cap-c1');
   const capC2 = document.getElementById('cap-c2');
-  if(!pIn || !pC1 || !pC2 || !pOut || !dotMain || !dotB1 || !dotB2 || !dotReturn) return;
+  const capNr = document.getElementById('cap-nr');
 
-  const lenIn  = pIn.getTotalLength();
-  const lenC1  = pC1.getTotalLength();
-  const lenC2  = pC2.getTotalLength();
-  const lenOut = pOut.getTotalLength();
+  const paths = { pAIn, pC2, pThrough, pC1, pNr, pM1M2, pFinal };
+  const dots  = { dotAIn, dotC2, dotThrough, dotC1, dotNr, dotM1M2, dotFinal };
+  if(Object.values(paths).some(p=>!p) || Object.values(dots).some(d=>!d)) return;
 
-  const T_IN     = 1100;
-  const T_NODE   = 80;
-  const T_BRANCH = 1500;
-  const T_MERGE  = 120;
-  const T_OUT    = 1300;
-  const CYCLE = T_IN + T_NODE + T_BRANCH + T_MERGE + T_OUT + 250;
+  const lenAIn     = pAIn.getTotalLength();
+  const lenC2      = pC2.getTotalLength();
+  const lenThrough = pThrough.getTotalLength();
+  const lenC1      = pC1.getTotalLength();
+  const lenNr      = pNr.getTotalLength();
+  const lenM1M2    = pM1M2.getTotalLength();
+  const lenFinal   = pFinal.getTotalLength();
 
   function place(el, path, len, frac){
     frac = Math.max(0, Math.min(1, frac));
@@ -50,61 +61,101 @@ document.getElementById('year').textContent = new Date().getFullYear();
     el.classList.add('cap-flash');
     setTimeout(()=> el.classList.remove('cap-flash'), 420);
   }
+  function active(t, off, dur){ return t >= off && t < off + dur; }
 
-  let start = null, firedNode = false, firedMerge = false, firedFlash = false;
+  // Timing model. C2 peels off first, at node A, and doesn't rejoin the
+  // main bus until merge 2 — so its journey spans the ENTIRE node-B split
+  // + merge-1 chain below, making it read as the slowest of the three
+  // branch currents. The Chua's Diode branch covers the longest physical
+  // path in the same window as C1 (both must land on merge 1 together),
+  // so it naturally reads as the fastest, with C1 in between.
+  const T_A       = 550;  // L -> node A
+  const T_PING_A  = 90;
+  const T_THROUGH = 500;  // node A -> node B (through R)
+  const T_PING_B  = 90;
+  const T_SPLIT   = 850;  // node B -> merge 1 (C1 & diode, synced arrival) — slowed so the diode dot reads clearly
+  const T_PING_M1 = 90;
+  const T_M1_M2   = 420;  // merge 1 -> merge 2
+  const T_C2      = T_THROUGH + T_PING_B + T_SPLIT + T_PING_M1 + T_M1_M2; // synced with the chain above
+  const T_PING_M2 = 90;
+  const T_FINAL   = 420;  // merge 2 -> back to L
+
+  const OFF_A       = 0;
+  const OFF_PING_A  = OFF_A + T_A;
+  const OFF_SPLIT_A = OFF_PING_A + T_PING_A;      // dot-c2 & dot-through both start here
+  const OFF_PING_B  = OFF_SPLIT_A + T_THROUGH;
+  const OFF_SPLIT_B = OFF_PING_B + T_PING_B;      // dot-c1 & dot-nr both start here
+  const OFF_PING_M1 = OFF_SPLIT_B + T_SPLIT;
+  const OFF_M1_M2   = OFF_PING_M1 + T_PING_M1;
+  const OFF_PING_M2 = OFF_SPLIT_A + T_C2;         // == OFF_M1_M2 + T_M1_M2 — the sync point with dot-c2
+  const OFF_FINAL   = OFF_PING_M2 + T_PING_M2;
+  const CYCLE       = OFF_FINAL + T_FINAL;
+
+  let start = null;
+  let firedA=false, firedB=false, firedM1=false, firedM2=false, firedFlashB=false, firedFlashC2=false;
 
   function frame(ts){
     requestAnimationFrame(frame);
     if(start === null) start = ts;
     const t = (ts - start) % CYCLE;
-    if(t < 16){ firedNode = false; firedMerge = false; firedFlash = false; }
+    if(t < 16){ firedA=false; firedB=false; firedM1=false; firedM2=false; firedFlashB=false; firedFlashC2=false; }
 
-    let cursor = 0;
-    // Phase 1 — single dot through resistor
-    if(t < cursor + T_IN){
-      const frac = (t - cursor) / T_IN;
-      dotMain.setAttribute('opacity', edgeFade(frac, 0.06, 0.06).toFixed(2));
-      place(dotMain, pIn, lenIn, frac);
+    // L -> node A
+    if(active(t, OFF_A, T_A)){
+      const frac = (t - OFF_A) / T_A;
+      dotAIn.setAttribute('opacity', edgeFade(frac,0.06,0.06).toFixed(2));
+      place(dotAIn, pAIn, lenAIn, frac);
+    } else dotAIn.setAttribute('opacity','0');
+
+    if(t >= OFF_PING_A && !firedA){ ping(pingNodeA); firedA = true; }
+
+    // Node A splits: C2 (slow, long) and "through" (to node B)
+    if(active(t, OFF_SPLIT_A, T_C2)){
+      const frac = (t - OFF_SPLIT_A) / T_C2;
+      dotC2.setAttribute('opacity', edgeFade(frac,0.05,0.05).toFixed(2));
+      place(dotC2, pC2, lenC2, frac);
+      if(!firedFlashC2 && frac > 0.3){ flashCap(capC2); firedFlashC2 = true; }
+    } else dotC2.setAttribute('opacity','0');
+
+    if(active(t, OFF_SPLIT_A, T_THROUGH)){
+      const frac = (t - OFF_SPLIT_A) / T_THROUGH;
+      dotThrough.setAttribute('opacity', edgeFade(frac,0.08,0.08).toFixed(2));
+      place(dotThrough, pThrough, lenThrough, frac);
+    } else dotThrough.setAttribute('opacity','0');
+
+    if(t >= OFF_PING_B && !firedB){ ping(pingNodeB); firedB = true; }
+
+    // Node B splits: C1 and Chua's Diode, synced arrival at merge 1
+    if(active(t, OFF_SPLIT_B, T_SPLIT)){
+      const frac = (t - OFF_SPLIT_B) / T_SPLIT;
+      const fade = edgeFade(frac,0.08,0.08);
+      dotC1.setAttribute('opacity', fade.toFixed(2));
+      dotNr.setAttribute('opacity', fade.toFixed(2));
+      place(dotC1, pC1, lenC1, frac);
+      place(dotNr, pNr, lenNr, frac);
+      if(!firedFlashB && frac > 0.35){ flashCap(capC1); flashCap(capNr); firedFlashB = true; }
     } else {
-      dotMain.setAttribute('opacity', '0');
+      dotC1.setAttribute('opacity','0');
+      dotNr.setAttribute('opacity','0');
     }
-    cursor += T_IN;
 
-    // Node gap — arrived at split point
-    if(t >= cursor && t < cursor + T_NODE && !firedNode){
-      ping(pingA); firedNode = true;
-    }
-    cursor += T_NODE;
+    if(t >= OFF_PING_M1 && !firedM1){ ping(pingMerge1); firedM1 = true; }
 
-    // Phase 2 — split into two branch dots, synced arrival
-    if(t >= cursor && t < cursor + T_BRANCH){
-      const frac = (t - cursor) / T_BRANCH;
-      const fade = edgeFade(frac, 0.08, 0.08);
-      dotB1.setAttribute('opacity', fade.toFixed(2));
-      dotB2.setAttribute('opacity', fade.toFixed(2));
-      place(dotB1, pC1, lenC1, frac);
-      place(dotB2, pC2, lenC2, frac);
-      if(!firedFlash && frac > 0.35){ flashCap(capC1); flashCap(capC2); firedFlash = true; }
-    } else {
-      dotB1.setAttribute('opacity', '0');
-      dotB2.setAttribute('opacity', '0');
-    }
-    cursor += T_BRANCH;
+    // Merge 1 (C1 + diode) -> merge 2 (C2's junction)
+    if(active(t, OFF_M1_M2, T_M1_M2)){
+      const frac = (t - OFF_M1_M2) / T_M1_M2;
+      dotM1M2.setAttribute('opacity', edgeFade(frac,0.1,0.1).toFixed(2));
+      place(dotM1M2, pM1M2, lenM1M2, frac);
+    } else dotM1M2.setAttribute('opacity','0');
 
-    // Merge gap — recombining
-    if(t >= cursor && t < cursor + T_MERGE && !firedMerge){
-      ping(pingMerge); firedMerge = true;
-    }
-    cursor += T_MERGE;
+    if(t >= OFF_PING_M2 && !firedM2){ ping(pingMerge2); firedM2 = true; }
 
-    // Phase 3 — single recombined dot returns to source
-    if(t >= cursor && t < cursor + T_OUT){
-      const frac = (t - cursor) / T_OUT;
-      dotReturn.setAttribute('opacity', edgeFade(frac, 0.06, 0.1).toFixed(2));
-      place(dotReturn, pOut, lenOut, frac);
-    } else {
-      dotReturn.setAttribute('opacity', '0');
-    }
+    // Merge 2 (+ C2) -> back to L
+    if(active(t, OFF_FINAL, T_FINAL)){
+      const frac = (t - OFF_FINAL) / T_FINAL;
+      dotFinal.setAttribute('opacity', edgeFade(frac,0.08,0.1).toFixed(2));
+      place(dotFinal, pFinal, lenFinal, frac);
+    } else dotFinal.setAttribute('opacity','0');
   }
   requestAnimationFrame(frame);
 })();
