@@ -229,7 +229,7 @@ section { position: relative; z-index: 5; padding: 0 clamp(20px, 5vw, 64px); }
 .blueprint-svg { width: 92%; height: 92%; transition: transform 0.3s; opacity: 0.85; }
 .schem-line { fill: none; stroke: var(--accent); stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
 .schem-node { fill: var(--bg); stroke: var(--accent); stroke-width: 1.2; }
-.schem-label { font-family: var(--font-mono); font-size: 9px; fill: var(--text-faint); user-select: none; }
+.schem-label { font-family: var(--font-mono); font-size: 9px; fill: #637281 !important; user-select: none; }
 .schem-hint { margin-top: 10px; font-family: var(--font-mono); font-size: 10px; color: var(--text-faint); transition: color 0.3s; }
 
 .current-dot {
