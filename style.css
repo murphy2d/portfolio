@@ -392,7 +392,7 @@ section { position: relative; z-index: 5; padding: 0 clamp(20px, 5vw, 64px); }
   .node:nth-child(even) .node-content { grid-column: 3; }
   .node .node-content { padding-right: 56px; text-align: right; }
   .node:nth-child(even) .node-content { padding-right: 0; padding-left: 56px; text-align: left; }
-  .node .node-footer { justify-content: flex-end; }
+  .node .node-footer { flex-direction: row-reverse; justify-content: flex-start; }
   .node:nth-child(even) .node-footer { justify-content: flex-start; }
   .node .gauge-label { flex-direction: row-reverse; }
   .node:nth-child(even) .gauge-label { flex-direction: row; }
@@ -472,3 +472,31 @@ footer .discharge a:hover { text-shadow: 0 0 12px var(--copper-glow); }
 .footer-bottom .socials a:hover { color: var(--text); text-shadow: 0 0 6px rgba(255,255,255,0.2); }
 
 @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; } }
+
+/* ---------- Custom Report Button ---------- */
+.report-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  
+  /* Make it glow orange by default */
+  color: var(--copper);
+  border: 1px solid var(--copper-glow);
+  background: rgba(223, 69, 51, 0.08);
+  box-shadow: 0 0 8px var(--copper-glow);
+}
+
+/* Make it light up even more when hovered */
+.report-btn:hover {
+  background: var(--copper);
+  color: var(--bg);
+  box-shadow: 0 0 16px var(--copper-glow);
+}
